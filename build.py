@@ -50,8 +50,8 @@ body.dark .pill-gold{color:#e8c47a}
 .btn-gold{background:var(--gold);color:#fff;box-shadow:0 6px 20px rgba(184,134,47,.35)}
 .btn-gold:hover{box-shadow:0 8px 26px rgba(184,134,47,.45)}
 .btn-gold:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
-.btn-blue{background:#3a6cc4;color:#fff;box-shadow:0 6px 20px rgba(58,108,196,.35)}
-.btn-blue:hover{box-shadow:0 8px 26px rgba(58,108,196,.45)}
+.btn-yellow-lt{background:#f0d678;color:#1c1810;box-shadow:0 6px 20px rgba(240,214,120,.35)}
+.btn-yellow-lt:hover{box-shadow:0 8px 26px rgba(240,214,120,.45)}
 .btn-dark{background:var(--ink);color:var(--bg)}
 .btn-sm{padding:8px 16px;font-size:1.005rem}
 .btn:disabled{opacity:.45;cursor:not-allowed}
@@ -1528,7 +1528,7 @@ HTML = r"""<!DOCTYPE html>
     <div class="hero-cta">
       <button class="btn btn-primary" onclick="openLead('General enquiry')">💬 WhatsApp Tony Hoo</button>
       <a class="btn btn-gold" href="#table">📊 Browse Full Comparison</a>
-      <a class="btn btn-blue" href="https://tonyhoo-home-loan-calculator.netlify.app/" target="_blank" rel="noopener">🧮 Home Loan Calculator</a>
+      <a class="btn btn-yellow-lt" href="https://tonyhoo-home-loan-calculator.netlify.app/" target="_blank" rel="noopener">🧮 Home Loan Calculator</a>
     </div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="num" id="statProjects">–</div><div class="label">New Projects Tracked</div></div>
