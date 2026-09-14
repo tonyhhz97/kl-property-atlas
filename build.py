@@ -457,6 +457,34 @@ body.dark footer a{color:#e3bd77;text-shadow:0 0 3px rgba(0,0,0,.85),0 0 10px rg
      up by roughly the CTA bar's height instead of letting them overlap. */
   .bottom-trays{margin-bottom:64px}
 }
+
+/* MOBILE TYPOGRAPHY REFINEMENT - About Tony intro card only. Scoped to
+   phone widths (<=640px) so tablet/desktop layouts above are completely
+   untouched - nothing here changes anything above this breakpoint.
+   Addresses two mobile-only wrapping issues:
+   1) The heading "I am Tony Hoo (IQI Realty | REN 75480 | @tonyhoo_97)"
+      was landing "@tonyhoo_97)" alone on its own line, because the glass
+      panel's desktop padding plus the full desktop heading size left too
+      little width per line on a phone. Trimming padding/font-size/
+      letter-spacing slightly gives the browser's own line-wrapping just
+      enough extra room per line to pull it up alongside "| REN 75480 |" -
+      no manual line break is added, the browser still wraps naturally.
+   2) The bio paragraph uses two <br> tags to hand-break it into 3 even
+      lines for desktop (see the .about-text p comment above). Those same
+      fixed breaks, squeezed into a phone-width column, are what strand
+      "genuine," alone at the end of the first hard-broken segment. Hiding
+      those <br> tags below 640px lets the whole paragraph reflow as one
+      natural block, using the extra width freed up below instead. */
+@media(max-width:640px){
+  .about-intro{padding:28px 0 32px}
+  .about-intro .container{padding:0 14px}
+  .about-intro-inner{gap:14px}
+  .about-photo-placeholder{width:132px;height:132px;flex:0 0 132px;font-size:2rem}
+  .about-text{max-width:100%;padding:0 4px}
+  .about-text h2{font-size:1.5rem;line-height:1.32;letter-spacing:-.015em;margin:0 auto 10px}
+  .about-text p br{display:none}
+  body.dark .about-text{padding:18px 14px}
+}
 """
 
 JS = r"""
