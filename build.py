@@ -319,7 +319,7 @@ body.dark .detail-map .map-link{color:#e3bd77}
 .about-photo-placeholder{width:200px;height:200px;flex:0 0 200px;border-radius:50%;background:var(--bg-card);border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:3.125rem;color:var(--ink-soft);overflow:hidden}
 .about-photo-placeholder img{width:100%;height:100%;object-fit:cover;object-position:center}
 .about-text{max-width:900px}
-.about-text h2{margin:0 0 12px;font-size:1.925rem}
+.about-text h2{margin:0 0 12px;font-size:1.75rem}
 /* Manually broken into 3 lines (see the <br> tags in the markup) rather
    than justified, so the spacing between words stays even - text-align:
    justify would otherwise stretch short forced lines with oversized gaps. */
@@ -1545,7 +1545,7 @@ HTML = r"""<!DOCTYPE html>
   <div class="container about-intro-inner">
     <div class="about-photo-placeholder"><img src="data:image/jpeg;base64,__PROFILE_TONY__" alt="Tony Hoo"></div>
     <div class="about-text">
-      <h2>I am Tony Hoo (IQI Realty | REN 75480)</h2>
+      <h2>I am Tony Hoo (IQI Realty | REN 75480 | @tonyhoo_97)</h2>
       <p>Dedicated to helping clients make smarter property decisions with clarity, confidence, and genuine,<br>no-pressure advice. I specialise in new project sales, investment properties, and modern township<br>developments across Malaysia — bringing buyers the transparency they need to choose with certainty.</p>
     </div>
   </div>
