@@ -1526,6 +1526,7 @@ HTML = r"""<!DOCTYPE html>
     <div class="hero-cta">
       <button class="btn btn-primary" onclick="openLead('General enquiry')">💬 WhatsApp Tony Hoo</button>
       <a class="btn btn-gold" href="#table">📊 Browse Full Comparison</a>
+      <a class="btn btn-outline" href="https://tonyhoo-home-loan-calculator.netlify.app/" target="_blank" rel="noopener">🧮 Home Loan Calculator</a>
     </div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="num" id="statProjects">–</div><div class="label">New Projects Tracked</div></div>
