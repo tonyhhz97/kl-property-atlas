@@ -203,7 +203,7 @@ body.dark .sort-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='ht
 /* TABLE */
 .table-section{padding:28px 0 60px}
 .table-wrap{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
-table{width:auto;max-width:100%;border-collapse:collapse;font-size:1.045rem}
+table{width:100%;border-collapse:collapse;font-size:1.045rem}
 thead th:nth-child(3),thead th:nth-child(4),thead th:nth-child(5),thead th:nth-child(6),thead th:nth-child(7),thead th:nth-child(8),
 tbody td:nth-child(3),tbody td:nth-child(4),tbody td:nth-child(5),tbody td:nth-child(6),tbody td:nth-child(7),tbody td:nth-child(8){text-align:center}
 tbody td:nth-child(1){text-align:center}
@@ -558,6 +558,14 @@ body.dark footer a{color:#e3bd77;text-shadow:0 0 3px rgba(0,0,0,.85),0 0 10px rg
   </div>
 
   <div class="filter-block">
+    <div class="filter-label-row">
+      <label>Layout Size (sft)</label><span class="pill pill-neutral opt-pill">Optional</span>
+      <span class="hint">Select one or more</span>
+    </div>
+    <div class="chip-row" id="sizeTicks"></div>
+  </div>
+
+  <div class="filter-block">
     <div class="filter-row-compact">
       <div class="select-filter">
         <div class="filter-label-row"><label>Title</label><span class="pill pill-neutral opt-pill">Optional</span></div>
@@ -743,10 +751,19 @@ const BUDGET_BUCKETS = [
   {key:'700-1000', label:'RM700k – RM1mil', min:700000, max:1000000},
   {key:'1000-plus', label:'RM1mil & above', min:1000000, max:Infinity},
 ];
+// Layout Size (sft) buckets - same pattern as BUDGET_BUCKETS, but matched
+// against a unit's own sft number (via csvParseSize) instead of its price.
+const SIZE_BUCKETS = [
+  {key:'300-600', label:'300 – 600 sft', min:300, max:600},
+  {key:'600-900', label:'600 – 900 sft', min:600, max:900},
+  {key:'900-1200', label:'900 – 1200 sft', min:900, max:1200},
+  {key:'1200-1500', label:'1200 – 1500 sft', min:1200, max:1500},
+  {key:'1500-plus', label:'1500 sft & above', min:1500, max:Infinity},
+];
 let state = {
   search:"", areas:[], tenure:"All", sort:"price-asc", favOnly:false,
   budgetRanges:[],
-  rooms:[], pet:"Any", completion:[], title:"Any",
+  rooms:[], pet:"Any", completion:[], title:"Any", sizeRanges:[],
   compare: JSON.parse(localStorage.getItem('kl_compare')||'[]'),
   fav: JSON.parse(localStorage.getItem('kl_fav')||'[]'),
   expanded: null
@@ -781,6 +798,7 @@ function toggleArrayFilter(field, value){
   }
   if(field==='rooms') renderRoomTicks();
   if(field==='completion') renderCompletionTicks();
+  if(field==='sizeRanges') renderSizeTicks();
   markFiltersPending();
 }
 
@@ -929,6 +947,15 @@ function renderBudgetTicks(){
     return `<button class="chip ${active?'active':''}" onclick="toggleBudgetRange('${b.key}')">${active?'✓ ':''}${b.label}</button>`;
   }).join('');
 }
+// Layout Size (sft): plain independent multi-select (no contiguous-range
+// requirement like Budget above) - a client can pick any combination of
+// size buckets, matching the Rooms/Completion chip pattern instead.
+function renderSizeTicks(){
+  document.getElementById('sizeTicks').innerHTML = SIZE_BUCKETS.map(b=>{
+    const active = state.sizeRanges.includes(b.key);
+    return `<button class="chip ${active?'active':''}" onclick="toggleArrayFilter('sizeRanges','${b.key}')">${active?'✓ ':''}${b.label}</button>`;
+  }).join('');
+}
 // Budget buckets must stay a single contiguous block (e.g. 300-500 + 500-700
 // is fine, but 300-500 + 1mil-above skipping the two middle buckets is not)
 // - picking a non-adjacent bucket is a silent no-op rather than an error,
@@ -968,20 +995,21 @@ function getFiltered(){
       if(!(p.name.toLowerCase().includes(s) || p.location.toLowerCase().includes(s) || p.developer.toLowerCase().includes(s))) return false;
     }
     if(state.favOnly && !state.fav.includes(p.name)) return false;
-    // Budget + Rooms: only applied once at least one is selected. Checked
-    // together against the SAME unit, not as two independent "some unit
-    // matches budget" / "some other unit matches rooms" checks - otherwise
-    // a project could pass both filters purely because one cheap studio
-    // happens to be in budget while a totally different, pricier 3-room
-    // unit satisfies the room count, even though no single unit actually
-    // meets both picks at once. A client who picks "RM500k-700k" + "3 rooms"
-    // wants a unit that is BOTH within that price range AND has 3 rooms.
+    // Budget + Rooms + Layout Size: only applied once at least one is
+    // selected. Checked together against the SAME unit, not as independent
+    // "some unit matches budget" / "some other unit matches rooms" / "some
+    // other unit matches size" checks - otherwise a project could pass all
+    // three filters purely because different units each satisfy one pick,
+    // even though no single unit actually meets every pick at once. A
+    // client who picks "RM500k-700k" + "3 rooms" + "900-1200 sft" wants a
+    // unit that is a 3-room, 900-1200sft unit priced RM500k-700k, all at
+    // the same time.
     // Checks every UNIT's price, not just the project's cheapest (priceFrom)
     // - otherwise a project with a wide price spread (e.g. a cheap sold-out
     // studio dragging priceFrom down) would wrongly disappear from a budget
     // search for its pricier units, even though those units genuinely fall
     // inside the selected range.
-    if(state.budgetRanges.length || state.rooms.length){
+    if(state.budgetRanges.length || state.rooms.length || state.sizeRanges.length){
       const matches = (p.units||[]).some(u=>{
         if(state.budgetRanges.length){
           if(!u.priceNum) return false;
@@ -1004,6 +1032,15 @@ function getFiltered(){
             return sel==='5' ? r>=5 : r===parseInt(sel);
           });
           if(!roomsOk) return false;
+        }
+        if(state.sizeRanges.length){
+          const sft = csvParseSize(u.size, 'min');
+          if(sft==null) return false;
+          const sizeOk = state.sizeRanges.some(key=>{
+            const b = SIZE_BUCKETS.find(x=>x.key===key);
+            return b && sft >= b.min && sft < b.max;
+          });
+          if(!sizeOk) return false;
         }
         return true;
       });
@@ -1071,13 +1108,13 @@ function applyFilters(){
 }
 
 function resetFilters(){
-  state = {...state, search:'', areas:[], tenure:'All', budgetRanges:[], rooms:[], pet:'Any', completion:[], title:'Any'};
+  state = {...state, search:'', areas:[], tenure:'All', budgetRanges:[], rooms:[], pet:'Any', completion:[], title:'Any', sizeRanges:[]};
   document.getElementById('searchInput').value='';
   document.getElementById('tenureSelect').value='All';
   document.getElementById('petSelect').value='Any';
   document.getElementById('titleSelect').value='Any';
   document.getElementById('applyFiltersBtn')?.classList.remove('pending');
-  renderAreaTiles(); renderRoomTicks(); renderCompletionTicks(); renderBudgetTicks(); renderTable();
+  renderAreaTiles(); renderRoomTicks(); renderCompletionTicks(); renderBudgetTicks(); renderSizeTicks(); renderTable();
 }
 
 function rowHTML(p){
@@ -1299,13 +1336,13 @@ function openDetail(name){
 // So this resets every filter back to "show everything" before expanding
 // and scrolling to the picked project, guaranteeing it's actually visible.
 function jumpToProject(name){
-  state = {...state, search:'', areas:[], tenure:'All', budgetRanges:[], rooms:[], pet:'Any', completion:[], title:'Any'};
+  state = {...state, search:'', areas:[], tenure:'All', budgetRanges:[], rooms:[], pet:'Any', completion:[], title:'Any', sizeRanges:[]};
   document.getElementById('searchInput').value='';
   document.getElementById('tenureSelect').value='All';
   document.getElementById('petSelect').value='Any';
   document.getElementById('titleSelect').value='Any';
   document.getElementById('applyFiltersBtn')?.classList.remove('pending');
-  renderAreaTiles(); renderRoomTicks(); renderCompletionTicks(); renderBudgetTicks();
+  renderAreaTiles(); renderRoomTicks(); renderCompletionTicks(); renderBudgetTicks(); renderSizeTicks();
   expandAndScrollTo(name);
 }
 
@@ -1368,6 +1405,9 @@ function currentRequirementsSummary(){
   if(state.rooms.length){
     const roomLabel = state.rooms.map(r=>r==='0'?'Studio':r==='5'?'5+':r==='dk'?'Dual Key':r).join('/');
     parts.push(roomLabel + (state.rooms.every(r=>r==='0'||r==='dk') ? '' : ' rooms'));
+  }
+  if(state.sizeRanges.length){
+    parts.push('layout size '+state.sizeRanges.map(key=>SIZE_BUCKETS.find(b=>b.key===key)?.label).filter(Boolean).join(', '));
   }
   if(state.pet !== 'Any') parts.push(`pet-friendly: ${state.pet}`);
   if(state.title !== 'Any') parts.push(state.title);
@@ -1617,6 +1657,7 @@ function refreshUI(){
   renderRoomTicks();
   renderCompletionTicks();
   renderBudgetTicks();
+  renderSizeTicks();
   renderTable();
   renderCompareTray();
   renderFavTray();
