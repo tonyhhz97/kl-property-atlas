@@ -1577,7 +1577,7 @@ HTML = r"""<!DOCTYPE html>
     <div class="about-photo-placeholder"><img src="data:image/jpeg;base64,__PROFILE_TONY__" alt="Tony Hoo"></div>
     <div class="about-text">
       <h2>I am Tony Hoo (IQI Realty | REN 75480 | @tonyhoo_97)</h2>
-      <p>Dedicated to helping clients make smarter property decisions with clarity, confidence, and genuine,<br>no-pressure advice. I specialise in new project sales, investment properties, and modern township<br>developments across Malaysia — bringing buyers the transparency they need to choose with certainty.</p>
+      <p>Dedicated to helping clients make smarter property decisions with clarity, confidence, and genuine, <br>no-pressure advice. I specialise in new project sales, investment properties, and modern township <br>developments across Malaysia — bringing buyers the transparency they need to choose with certainty.</p>
     </div>
   </div>
 </section>
